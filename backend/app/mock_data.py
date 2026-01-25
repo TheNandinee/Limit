@@ -5,6 +5,10 @@ No real bank data. Fully hardcoded.
 
 from datetime import datetime
 
+# ZK-style evaluation period (monthly epoch)
+CURRENT_PERIOD = "2026-01"
+
+
 USER_BUDGET = 20000
 SAVINGS_TARGET = 5000
 
@@ -22,3 +26,15 @@ PREVIOUS_MONTH_IMPULSE_SPEND = 4000
 
 # Categories considered impulse spending
 IMPULSE_CATEGORIES = {"food", "shopping", "travel"}
+
+# Inputs that would be PUBLIC in a ZK system (on-chain visible)
+PUBLIC_INPUTS = {
+    "budget": USER_BUDGET,
+    "savings_target": SAVINGS_TARGET,
+}
+
+# Inputs that would remain PRIVATE (never on-chain)
+PRIVATE_INPUTS = {
+    "transactions": transactions,
+    "previous_month_impulse_spend": PREVIOUS_MONTH_IMPULSE_SPEND,
+}

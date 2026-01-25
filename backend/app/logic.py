@@ -16,28 +16,32 @@ def evaluate_discipline(transactions):
     total_savings = 0
 
     for tx in transactions:
+        amount = int(tx["amount"])  # enforce integer math (ZK-friendly)
+
         if tx["category"] == "savings":
-            total_savings += tx["amount"]
+            total_savings += amount
         else:
-            total_spend += tx["amount"]
+            total_spend += amount
 
         if tx["category"] in IMPULSE_CATEGORIES:
-            impulse_spend += tx["amount"]
+            impulse_spend += amount
 
-    budget_ok = total_spend <= USER_BUDGET
-    impulse_ok = impulse_spend < PREVIOUS_MONTH_IMPULSE_SPEND
-    savings_ok = total_savings >= SAVINGS_TARGET
+    # ZK-style inequality constraints
+    budget_delta = USER_BUDGET - total_spend
+    impulse_delta = PREVIOUS_MONTH_IMPULSE_SPEND - impulse_spend
+    savings_delta = total_savings - SAVINGS_TARGET
+
+    budget_ok = budget_delta >= 0
+    impulse_ok = impulse_delta > 0
+    savings_ok = savings_delta >= 0
 
     discipline_passed = budget_ok and impulse_ok and savings_ok
 
     return {
-        "budget_ok": budget_ok,
-        "impulse_ok": impulse_ok,
-        "savings_ok": savings_ok,
-        "discipline_passed": discipline_passed,
-        "debug": {
-            "total_spend": total_spend,
-            "impulse_spend": impulse_spend,
-            "total_savings": total_savings,
+        "constraints": {
+            "budget_delta": budget_delta,
+            "impulse_delta": impulse_delta,
+            "savings_delta": savings_delta,
         },
+        "discipline_passed": discipline_passed,
     }
