@@ -1,57 +1,107 @@
-# Sample Hardhat 3 Beta Project (`node:test` and `viem`)
+# Proof of Restrain - Blockchain Self-Discipline Platform
 
-This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
+A blockchain-based platform for creating accountability contracts with real financial stakes.
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+## Ì≥ã Prerequisites
 
-## Project Overview
+- Node.js (v16 or higher)
+- npm or yarn
+- MetaMask wallet
+- Alchemy account (for blockchain RPC)
 
-This example project includes:
+## Ì∫Ä Quick Start
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
-
-## Usage
-
-### Running Tests
-
-To run all the tests in the project, execute the following command:
-
-```shell
-npx hardhat test
+### 1. Clone the Repository
+```bash
+git clone https://github.com/riddhi-rathi/proof-of-restrain.git
+cd proof-of-restrain
 ```
 
-You can also selectively run the Solidity or `node:test` tests:
+### 2. Environment Setup
 
-```shell
-npx hardhat test solidity
-npx hardhat test nodejs
+Create a `.env` file in the root directory:
+```bash
+cp .env.example .env
 ```
 
-### Make a deployment to Sepolia
+Edit `.env` and add your actual keys:
+- **Alchemy API**: Get from https://www.alchemy.com/
+- **Private Key**: From MetaMask (Settings > Security & Privacy)
+- **OpenAI/Anthropic**: Get API keys if using AI features
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+### 3. Install Dependencies
 
-To run the deployment to a local chain:
-
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+**Root (Smart Contracts):**
+```bash
+npm install
 ```
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
-
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
+**Frontend:**
+```bash
+cd proof-of-restrain
+npm install
+cd ..
 ```
 
-After setting the variable, you can run the deployment with the Sepolia network:
+### 4. Run the Application
 
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
+**Start Frontend:**
+```bash
+cd proof-of-restrain
+npm run dev
 ```
+
+The app will be available at `http://localhost:5173`
+
+## ÌøóÔ∏è Project Structure
+```
+‚îú‚îÄ‚îÄ backend/              # Backend API
+‚îú‚îÄ‚îÄ contracts/            # Smart contracts (Solidity)
+‚îú‚îÄ‚îÄ proof-of-restrain/    # Frontend (React + Vite)
+‚îú‚îÄ‚îÄ scripts/              # Deployment scripts
+‚îî‚îÄ‚îÄ test/                 # Contract tests
+```
+
+## Ì∑™ Smart Contract Deployment
+```bash
+# Compile contracts
+npx hardhat compile
+
+# Deploy to Sepolia testnet
+npx hardhat run scripts/deploy.js --network sepolia
+```
+
+## Ì¥ß Troubleshooting
+
+**"Module not found" errors:**
+```bash
+# Clean install
+rm -rf node_modules package-lock.json
+npm install
+
+# Also in frontend
+cd proof-of-restrain
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**MetaMask issues:**
+- Switch to Sepolia testnet
+- Get test ETH: https://sepoliafaucet.com/
+
+## Ì≥ù Environment Variables
+
+Required in `.env`:
+- `PRIVATE_KEY` - Your wallet private key
+- `ALCHEMY_API_KEY` - Alchemy RPC key
+- `VITE_CONTRACT_ADDRESS` - Deployed contract address
+- `VITE_OPENAI_API_KEY` - OpenAI API key (optional)
+
+## Ìºê Deployed Links
+
+- **Frontend**: [Add your Vercel/Netlify link here]
+- **Smart Contract**: [Add Sepolia Etherscan link here]
+
+## Ì≥Ñ License
+
+MIT
