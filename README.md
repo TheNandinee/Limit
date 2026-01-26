@@ -2,14 +2,14 @@
 
 A blockchain-based platform for creating accountability contracts with real financial stakes.
 
-## í³‹ Prerequisites
+## ï¿½ï¿½ï¿½ Prerequisites
 
 - Node.js (v16 or higher)
 - npm or yarn
 - MetaMask wallet
 - Alchemy account (for blockchain RPC)
 
-## íº€ Quick Start
+## ï¿½ï¿½ï¿½ Quick Start
 
 ### 1. Clone the Repository
 ```bash
@@ -53,7 +53,7 @@ npm run dev
 
 The app will be available at `http://localhost:5173`
 
-## í¿—ï¸ Project Structure
+## ï¿½ï¿½ï¿½ï¸ Project Structure
 ```
 â”œâ”€â”€ backend/              # Backend API
 â”œâ”€â”€ contracts/            # Smart contracts (Solidity)
@@ -62,7 +62,7 @@ The app will be available at `http://localhost:5173`
 â””â”€â”€ test/                 # Contract tests
 ```
 
-## í·ª Smart Contract Deployment
+## ï¿½ï¿½ï¿½ Smart Contract Deployment
 ```bash
 # Compile contracts
 npx hardhat compile
@@ -71,7 +71,7 @@ npx hardhat compile
 npx hardhat run scripts/deploy.js --network sepolia
 ```
 
-## í´§ Troubleshooting
+## ï¿½ï¿½ï¿½ Troubleshooting
 
 **"Module not found" errors:**
 ```bash
@@ -89,7 +89,7 @@ npm install
 - Switch to Sepolia testnet
 - Get test ETH: https://sepoliafaucet.com/
 
-## í³ Environment Variables
+## ï¿½ï¿½ï¿½ Environment Variables
 
 Required in `.env`:
 - `PRIVATE_KEY` - Your wallet private key
@@ -97,11 +97,11 @@ Required in `.env`:
 - `VITE_CONTRACT_ADDRESS` - Deployed contract address
 - `VITE_OPENAI_API_KEY` - OpenAI API key (optional)
 
-## í¼ Deployed Links
+## ï¿½ï¿½ï¿½ Deployed Links
 
-- **Frontend**: [Add your Vercel/Netlify link here]
-- **Smart Contract**: [Add Sepolia Etherscan link here]
+- **Frontend**: https://funny-banoffee-691c2b.netlify.app/
+- **Smart Contract**: Deployment to Sepolia testnet pending
 
-## í³„ License
+## ï¿½ï¿½ï¿½ License
 
 MIT
