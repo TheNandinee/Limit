@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIMIT - The Protocol of Self-Restraint</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { box-sizing: border-box; }
+
+        :root {
+            --bg: #030005;
+            --surface: #0a0510;
+            --border: #2a2435;
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #06b6d4;
+            --gold: #fbbf24;
+            --danger: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        body { 
+            font-family: 'Manrope', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-primary);
+            overflow-x: hidden;
+            margin: 0;
+            cursor: none;
+        }
+        
+        a, button, input, textarea, select, label, [role="button"] { cursor: none; }
+        
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .nebula-card {
+            background: rgba(10, 5, 16, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .nebula-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(125deg, transparent 0%, rgba(139, 92, 246, 0.03) 30%, rgba(6, 182, 212, 0.03) 100%);
+            pointer-events: none;
+        }
+        .nebula-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.15);
+        }
+
+        .btn-nebula {
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: none;
+        }
+        .btn-nebula:hover:not(:disabled) {
+            border-color: var(--accent-secondary);
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+        .btn-nebula:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-connect {
+            background: #f5f5f5;
+            color: #000;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            cursor: none;
+        }
+        .btn-connect:hover {
+            background: #ffffff;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: none;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .fade-in-up { animation: fadeInUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+        .text-gradient {
+            background: linear-gradient(to right, #e2e8f0, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-gold {
+            background: linear-gradient(to right, #fbbf24, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 50;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .hidden { display: none; }
+        .fixed { position: fixed; }
+        .transition { transition: all 0.3s; }
+
+        /* Custom cursor */
+        .cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border: 1px solid white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.3;
+            mix-blend-mode: difference;
+            transition: width 0.15s, height 0.15s, opacity 0.15s;
+            transform: translate(-50%, -50%);
+        }
+        .cursor-ring.active {
+            width: 48px;
+            height: 48px;
+            opacity: 0.8;
+        }
+        .cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.075s, height 0.075s;
+        }
+        .cursor-ring.active ~ .cursor-dot {
+            width: 2px;
+            height: 2px;
+        }
+    </style>
+</head>
+<body style="background-color: #030005;">
+    <div id="app"></div>
+
+    <!-- SVG Icons helper -->
+    <svg style="display:none;">
+        <defs>
+            <symbol id="fox-icon" viewBox="0 0 24 24">
+                <path d="M21.83 10.33L19.7 2.11C19.64 1.88 19.33 1.86 19.24 2.08L17.55 6.07L13.16 6.07L13.89 1.63C13.92 1.4 13.67 1.27 13.51 1.41L7.56 6.77L2.17 10.33C1.98 10.46 2.01 10.76 2.22 10.84L7.56 12.87L11.59 21.72C11.69 21.94 12.01 21.94 12.11 21.72L16.44 12.87L21.78 10.84C21.99 10.76 22.02 10.46 21.83 10.33Z" fill="#E2761B"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <script>
+        // State Management
+        const state = {
+            view: 'landing',
+            activeTab: 'dashboard',
+            stats: { tvl: 1.42, score: 94.2 },
+            logs: [
+                { text: "Contract Sealed: 0x88...1A", time: "09:42", type: "neutral" },
+                { text: "Violation Detected: Group-09", time: "09:15", type: "danger" },
+                { text: "Proof Verified: ZK-SNARK", time: "08:30", type: "success" }
+            ],
+            modals: {
+                trustModal: false,
+                walletPreview: false,
+                selectedChallenge: null,
+                createChallenge: false,
+                metaMaskPopup: false
+            },
+            landing: {
+                terminalLines: [],
+                isBooting: false,
+                step: 'scroll'
+            }
+        };
+
+        // Data
+        const CHALLENGES_DATA = [
+            { id: 'HV-01', name: 'No-Spend November', type: 'Collective', participants: 420, active: true, severity: 85, stake: 'Reputation' },
+            { id: 'HV-02', name: 'Crypto Fasting', type: 'Individual', participants: 12, active: true, severity: 92, stake: 'Soulbound' },
+            { id: 'HV-03', name: 'Coffee Cutback', type: 'Collective', participants: 3, active: false, severity: 40, stake: 'Social', failedBy: '0x99...a1' }
+        ];
+
+        const SEALS = [
+            { id: 'SBT-01', name: 'Iron Will', date: 'Nov 2023', severity: 92, description: '30 Days • High Severity • Zero Violations' },
+            { id: 'SBT-02', name: 'Collective Oath', date: 'Jan 2024', severity: 85, description: 'Group Challenge #C-091 • 4 Participants' },
+            { id: 'SBT-03', name: 'Void Walker', date: 'Mar 2024', severity: 99, description: '100 Days of total asset freeze.' },
+        ];
+
+        const PUNISHMENTS = {
+            Financial: ["🔥 Burn 0.05 ETH to Null", "💸 Donate $50 to Rival DAO", "⛽ Pay 20 Tx Gas"],
+            Effort: ["📝 500-Word Essay", "🏋️ 100 Burpees Live", "📵 24h Digital Detox"],
+            Social: ["🤡 Change PFP to Clown", "📢 Public Apology Video", "🤐 Vow of Silence"]
+        };
+
+        const GROUP_MEMBERS = [
+            { id: '0x71...8A92', status: 'Active', streak: 12 },
+            { id: '0x33...1B2C', status: 'Active', streak: 12 },
+            { id: '0x99...A1B2', status: 'Warning', streak: 12 },
+            { id: '0x11...C3D4', status: 'Active', streak: 12 },
+        ];
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Cursor tracking
+        const cursorRing = document.createElement('div');
+        cursorRing.className = 'cursor-ring';
+        document.body.appendChild(cursorRing);
+
+        const cursorDot = document.createElement('div');
+        cursorDot.className = 'cursor-dot';
+        document.body.appendChild(cursorDot);
+
+        document.addEventListener('mousemove', (e) => {
+            cursorRing.style.left = e.clientX + 'px';
+            cursorRing.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+
+            const target = e.target;
+            const isClickable = window.getComputedStyle(target).cursor === 'pointer' || 
+                              target.closest('button') || 
+                              target.closest('a') || 
+                              target.getAttribute('role') === 'button';
+            
+            if (isClickable) {
+                cursorRing.classList.add('active');
+            } else {
+                cursorRing.classList.remove('active');
+            }
+        });
+
+        // Render Functions
+        function render() {
+            const app = document.getElementById('app');
+            
+            if (state.view === 'landing') {
+                app.innerHTML = renderLanding();
+            } else {
+                app.innerHTML = renderApp();
+            }
+
+            // Re-initialize Lucide icons after render
+            lucide.createIcons();
+
+            // Re-attach event listeners
+            attachEventListeners();
+        }
+
+        function renderLanding() {
+            return `
+                <div class="bg-[#030005] text-white">
+                    <!-- SECTION 1: THE HOOK -->
+                    <section class="min-h-screen flex flex-col justify-center items-center px-6 relative text-center">
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#030005] to-[#030005] pointer-events-none"></div>
+                        <svg class="w-20 h-20 text-purple-500 mb-8 animate-pulse-slow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M12 2L15.09 8.26H21.77L16.54 12.45L18.63 18.71L12 14.52L5.37 18.71L7.46 12.45L2.23 8.26H8.91L12 2Z"></path></svg>
+                        <h1 class="text-7xl md:text-9xl font-bold tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-700">
+                            LIMIT
+                        </h1>
+                        <p class="text-zinc-400 text-lg tracking-[0.5em] uppercase mb-32">
+                            The Protocol of Self-Restraint
+                        </p>
+                        <div class="animate-bounce">
+                            <svg class="w-6 h-6 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 2: THE PROBLEM -->
+                    <section class="min-h-screen flex flex-col justify-center items-center px-6 relative">
+                        <div class="max-w-4xl text-center">
+                            <h2 class="text-4xl md:text-6xl font-light mb-12 text-zinc-200">
+                                Impulse is the enemy. <br/>
+                                <span class="text-purple-500 font-bold">Code is the cure.</span>
+                            </h2>
+                            <p class="text-xl text-zinc-500 leading-relaxed max-w-2xl mx-auto">
+                                Traditional budgeting relies on you saying "no" to yourself. Limit relies on 
+                                <strong> Smart Contracts</strong> that make saying "yes" impossible.
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 3: HOW IT WORKS -->
+                    <section class="min-h-screen flex flex-col justify-center items-center px-6 relative">
+                        <div class="max-w-6xl w-full">
+                            <h2 class="text-4xl font-bold text-center mb-16 text-white">How It Works</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                                <div class="nebula-card p-8 flex flex-col items-center text-center">
+                                    <div class="text-6xl font-white text-white mb-4">01</div>
+                                    <svg class="w-8 h-8 text-purple-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                    <h3 class="text-xl font-bold text-white mb-2">Commit</h3>
+                                    <p class="text-sm text-zinc-400 leading-relaxed">Set a spending limit and a duration. This rule is sealed on the blockchain.</p>
+                                </div>
+                                <div class="nebula-card p-8 flex flex-col items-center text-center">
+                                    <div class="text-6xl font-white text-white mb-4">02</div>
+                                    <svg class="w-8 h-8 text-cyan-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m7.5-4.5a10.5 10.5 0 11-21 0 10.5 10.5 0 0121 0z"></path></svg>
+                                    <h3 class="text-xl font-bold text-white mb-2">Enforce</h3>
+                                    <p class="text-sm text-zinc-400 leading-relaxed">Your wallet monitors transactions. Breach the limit, and the contract triggers.</p>
+                                </div>
+                                <div class="nebula-card p-8 flex flex-col items-center text-center">
+                                    <div class="text-6xl font-white text-white mb-4">03</div>
+                                    <svg class="w-8 h-8 mb-6" style="color: #fbbf24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m6.364 1.636l-.707.707M21 12h-1m1.636 6.364l-.707-.707M12 21v1m-6.364-1.636l.707-.707M3 12h1M4.22 4.22l.707.707"></path></svg>
+                                    <h3 class="text-xl font-bold text-white mb-2">Ascend</h3>
+                                    <p class="text-sm text-zinc-400 leading-relaxed">Success mints a Soulbound Seal. Failure executes the Punishment Oracle.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 4: CTA -->
+                    <section class="min-h-screen flex flex-col justify-center items-center px-6 relative bg-black border-t border-white/5">
+                        <div class="text-center">
+                            <h2 class="text-4xl text-white font-light mb-8">Ready to Commit?</h2>
+                            <button onclick="startSignup()" class="btn-nebula px-16 py-6 text-lg tracking-widest shadow-2xl">
+                                ENTER SYSTEM
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        function renderApp() {
+            return `
+                <div class="min-h-screen flex text-zinc-300 selection:bg-purple-500/30 selection:text-white font-sans" style="background-color: #030005;">
+                    <!-- Sidebar -->
+                    <aside class="w-20 lg:w-72 border-r border-white/5 flex flex-col bg-[#0a0510] z-20 sticky top-0 h-screen shadow-2xl">
+                        <div class="h-24 flex items-center justify-center lg:justify-start lg:px-8 border-b border-white/5">
+                            <svg class="w-7 h-7 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L15.09 8.26H21.77L16.54 12.45L18.63 18.71L12 14.52L5.37 18.71L7.46 12.45L2.23 8.26H8.91L12 2Z"></path></svg>
+                            <span class="hidden lg:block ml-4 text-xl font-bold tracking-widest text-white">LIMIT</span>
+                        </div>
+                        
+                        <!-- Wallet Card -->
+                        <div onclick="toggleModal('walletPreview')" class="p-4 mx-4 mt-6 mb-2 bg-[#f2f4f6] border border-[#dcdce0] rounded-xl relative overflow-hidden group cursor-pointer hover:bg-white transition-colors">
+                            <div class="flex items-center gap-3 mb-3 relative z-10">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-pink-500 border-2 border-white shadow-sm"></div>
+                                <div>
+                                    <p class="text-black text-xs font-bold font-sans">Meta Demo</p>
+                                    <p class="text-gray-500 text-[10px] font-mono">0x71...8A92</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end relative z-10">
+                                <div class="flex items-center gap-1 text-[10px] text-gray-600 bg-white px-2 py-1 rounded border border-gray-200">
+                                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div> Sepolia
+                                </div>
+                                <p class="text-black font-mono text-sm font-bold">0.05 ETH</p>
+                            </div>
+                        </div>
+
+                        <!-- Navigation -->
+                        <nav class="flex-1 py-4 px-4 space-y-2">
+                            <button onclick="setActiveTab('dashboard')" class="w-full flex items-center gap-4 p-4 rounded-lg transition-all duration-300 ${state.activeTab === 'dashboard' ? 'bg-purple-500/10 text-white border-l-2 border-purple-500' : 'text-zinc-500 hover:text-white hover:bg-white/5'}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                                <span class="hidden lg:block text-sm font-medium tracking-wide">Control Deck</span>
+                            </button>
+                            <button onclick="setActiveTab('ritual')" class="w-full flex items-center gap-4 p-4 rounded-lg transition-all duration-300 ${state.activeTab === 'ritual' ? 'bg-purple-500/10 text-white border-l-2 border-purple-500' : 'text-zinc-500 hover:text-white hover:bg-white/5'}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span class="hidden lg:block text-sm font-medium tracking-wide">New Rule</span>
+                            </button>
+                            <button onclick="setActiveTab('collective')" class="w-full flex items-center gap-4 p-4 rounded-lg transition-all duration-300 ${state.activeTab === 'collective' ? 'bg-purple-500/10 text-white border-l-2 border-purple-500' : 'text-zinc-500 hover:text-white hover:bg-white/5'}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 12H9m4 0a4 4 0 110-5.292M9 12a4 4 0 100 5.292"></path></svg>
+                                <span class="hidden lg:block text-sm font-medium tracking-wide">Hive Mind</span>
+                            </button>
+                            <button onclick="setActiveTab('identity')" class="w-full flex items-center gap-4 p-4 rounded-lg transition-all duration-300 ${state.activeTab === 'identity' ? 'bg-purple-500/10 text-white border-l-2 border-purple-500' : 'text-zinc-500 hover:text-white hover:bg-white/5'}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m5.506 0A9.003 9.003 0 0012 3c-4.478 0-8.268 2.943-9.543 7a9.001 9.001 0 001.886 5.845m15.215-9.002a8.96 8.96 0 01-5.343-7.957"></path></svg>
+                                <span class="hidden lg:block text-sm font-medium tracking-wide">Identity Matrix</span>
+                            </button>
+                        </nav>
+                        <div class="p-8 border-t border-white/5">
+                            <button onclick="returnToLanding()" class="flex items-center gap-4 text-zinc-600 hover:text-red-500 transition-colors cursor-pointer group">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <span class="hidden lg:block text-xs font-mono uppercase tracking-widest">Disconnect</span>
+                            </button>
+                        </div>
+                    </aside>
+
+                    <!-- Main Content -->
+                    <main class="flex-1 relative overflow-y-auto">
+                        <div class="max-w-7xl mx-auto p-8 lg:p-16 min-h-screen">
+                            ${renderActiveView()}
+                        </div>
+                    </main>
+
+                    <!-- Modals -->
+                    ${state.modals.trustModal ? renderTrustScoreModal() : ''}
+                    ${state.modals.walletPreview ? renderWalletPreview() : ''}
+                    ${state.modals.selectedChallenge ? renderGroupDetailModal() : ''}
+                    ${state.modals.createChallenge ? renderCreateGroupModal() : ''}
+                </div>
+            `;
+        }
+
+        function renderActiveView() {
+            switch(state.activeTab) {
+                case 'dashboard':
+                    return renderDashboard();
+                case 'ritual':
+                    return renderRitual();
+                case 'collective':
+                    return renderCollective();
+                case 'identity':
+                    return renderIdentity();
+                default:
+                    return '';
+            }
+        }
+
+        function renderDashboard() {
+            return `
+                <div class="animate-in fade-in duration-700">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-white/5 pb-6">
+                        <div>
+                            <h1 class="text-3xl md:text-5xl font-light text-white mb-2 tracking-tight">Control Deck</h1>
+                            <p class="text-zinc-400 font-mono text-xs uppercase tracking-widest flex items-center gap-2">System Overview</p>
+                        </div>
+                        <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-[#0a0510] rounded-full border border-white/10 shadow-lg">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-[10px] font-mono text-zinc-300 uppercase">Sepolia Online</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
+                        <div class="lg:col-span-8 nebula-card p-10 flex flex-col justify-between min-h-[320px] relative group">
+                            <div class="flex justify-between items-start z-10">
+                                <h3 class="text-zinc-400 text-xs font-mono uppercase tracking-widest">Total Value Safeguarded</h3>
+                                <svg class="w-6 h-6 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            </div>
+                            <div class="z-10">
+                                <div class="flex items-baseline gap-4 mb-2">
+                                    <span class="text-7xl md:text-8xl font-light text-white tracking-tighter text-gradient">${state.stats.tvl.toFixed(2)}</span>
+                                    <span class="text-2xl text-purple-400 font-mono">ETH</span>
+                                </div>
+                                <div class="h-px w-full bg-white/10 mb-6 relative">
+                                    <div class="absolute top-0 left-0 h-full bg-purple-500 w-[70%] shadow-[0_0_15px_#8b5cf6]"></div>
+                                </div>
+                                <div class="flex gap-8">
+                                    <div><p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">USD Value</p><p class="text-lg text-zinc-300 font-mono">$${(state.stats.tvl * 2400).toLocaleString(undefined, {minimumFractionDigits: 2})}</p></div>
+                                    <div><p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Safety Score</p><p class="text-lg text-emerald-400 font-mono">98/100</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div onclick="setActiveTab('ritual')" class="lg:col-span-4 nebula-card p-8 flex flex-col justify-center items-center text-center cursor-pointer group hover:bg-white/5 transition-colors">
+                            <div class="w-20 h-20 rounded-full border border-zinc-700 bg-[#0a0510] flex items-center justify-center mb-6 group-hover:border-purple-500 group-hover:scale-110 transition-all duration-300 shadow-xl">
+                                <svg class="w-8 h-8 text-zinc-400 group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <h3 class="text-xl text-white font-medium mb-2 group-hover:text-purple-300 transition-colors">Create New Rule</h3>
+                            <p class="text-sm text-zinc-500 max-w-[200px] leading-relaxed">Establish a new immutable spending constraint on-chain.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="nebula-card p-6 cursor-pointer hover:border-cyan-500/50 transition-colors group" onclick="toggleModal('trustModal')">
+                            <div class="flex items-center gap-3 mb-4"><svg class="w-5 h-5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002 2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg><span class="text-xs text-zinc-400 font-mono uppercase tracking-widest group-hover:text-cyan-400">Trust Score</span></div>
+                            <div class="text-3xl font-light text-white">${state.stats.score.toFixed(1)}</div>
+                        </div>
+                        <div class="nebula-card p-6">
+                            <div class="flex items-center gap-3 mb-4"><svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m6.364 1.636l-.707.707M21 12h-1m1.636 6.364l-.707-.707M12 21v1m-6.364-1.636l.707-.707M3 12h1M4.22 4.22l.707.707"></path></svg><span class="text-xs text-zinc-400 font-mono uppercase tracking-widest">Identity Tier</span></div>
+                            <div class="text-3xl font-light text-white text-gradient-gold">Ascetic</div>
+                        </div>
+                        <div class="nebula-card p-6 border-red-900/30 bg-red-900/5">
+                            <div class="flex items-center gap-3 mb-4"><svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs text-red-400 font-mono uppercase tracking-widest">Violations</span></div>
+                            <div class="text-3xl font-light text-red-500">0</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12">
+                        <h3 class="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-4">Protocol Feed</h3>
+                        <div class="space-y-px bg-white/5 border border-white/5">
+                            ${state.logs.map((log, i) => `
+                                <div class="bg-[#030303] p-4 flex justify-between items-center hover:bg-zinc-900/30 transition-colors animate-in slide-in-from-left-2 duration-300" style="animation-delay: ${i*100}ms">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-1 h-1 rounded-full ${log.type === 'danger' ? 'bg-red-500' : log.type === 'success' ? 'bg-emerald-500' : 'bg-yellow-500'}"></div>
+                                        <span class="text-sm font-mono ${log.type === 'danger' ? 'text-red-400' : 'text-zinc-400'}">${log.text}</span>
+                                    </div>
+                                    <span class="text-xs font-mono text-zinc-600">${log.time}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRitual() {
+            return `
+                <div class="max-w-5xl mx-auto animate-in fade-in duration-700">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-white/5 pb-6">
+                        <div>
+                            <h1 class="text-3xl md:text-5xl font-light text-white mb-2 tracking-tight">New Rule</h1>
+                            <p class="text-zinc-400 font-mono text-xs uppercase tracking-widest">Immutable Commitment</p>
+                        </div>
+                        <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-[#0a0510] rounded-full border border-white/10 shadow-lg">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                            <span class="text-[10px] font-mono text-zinc-300 uppercase">Step 1 of 2</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                        <div class="space-y-12">
+                            <div class="space-y-12 animate-in slide-in-from-left-4">
+                                <div>
+                                    <label class="text-xs text-purple-400 uppercase tracking-widest font-bold mb-6 block">Monthly Limit (USD)</label>
+                                    <div class="flex items-center gap-4 mb-8">
+                                        <span class="text-6xl font-light text-white tracking-tighter" id="limitDisplay">$500</span>
+                                    </div>
+                                    <input type="range" min="100" max="5000" step="50" value="500" onchange="updateLimit(this.value)" class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+                                    <div class="flex justify-between mt-4 text-xs font-mono text-zinc-600"><span>Min: $100</span><span>Max: $5,000</span></div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-purple-400 uppercase tracking-widest font-bold mb-4 block">Duration Lock</label>
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <button class="py-4 border border-zinc-800 text-sm font-mono transition-all hover:border-purple-500">30 Days</button>
+                                        <button class="py-4 border border-zinc-800 text-sm font-mono transition-all hover:border-purple-500">90 Days</button>
+                                        <button class="py-4 border border-zinc-800 text-sm font-mono transition-all hover:border-purple-500">365 Days</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-8 border-t border-white/5 flex gap-4">
+                                <button class="flex-1 btn-nebula py-4 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                                    Seal Contract <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="nebula-card p-10 flex flex-col justify-center items-center text-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none"></div>
+                            <div class="relative z-10">
+                                <div class="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-4">Projected Severity Score</div>
+                                <div class="text-9xl font-thin text-white mb-2" id="severityScore">30</div>
+                                <div class="text-sm font-medium uppercase tracking-widest text-zinc-500">Standard</div>
+                            </div>
+                            <div class="mt-12 w-full space-y-4 border-t border-white/5 pt-8">
+                                <div class="flex justify-between text-xs text-zinc-400"><span>Gas Estimate</span><span class="font-mono text-white">0.004 ETH</span></div>
+                                <div class="flex justify-between text-xs text-zinc-400"><span>Proof Type</span><span class="font-mono text-white">ZK-SNARK</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCollective() {
+            return `
+                <div class="animate-in fade-in duration-700">
+                    <div class="flex justify-between items-end mb-12 border-b border-white/5 pb-6">
+                        <div>
+                            <h1 class="text-3xl md:text-5xl font-light text-white mb-2 tracking-tight">Hive Mind</h1>
+                            <p class="text-zinc-400 font-mono text-xs uppercase tracking-widest">Collective Accountability</p>
+                        </div>
+                        <button onclick="toggleModal('createChallenge')" class="btn-ghost px-4 py-2 text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Group Challenge
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                        ${CHALLENGES_DATA.map(c => `
+                            <div onclick="selectChallenge(${JSON.stringify(c).replace(/"/g, '&quot;')})" class="nebula-card p-6 flex flex-col justify-between min-h-[200px] cursor-pointer group hover:bg-white/5 transition-colors ${!c.active ? 'border-red-900/30' : ''}">
+                                <div>
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="p-2 bg-[#0a0510] border border-zinc-800 rounded-lg text-zinc-400 group-hover:text-white transition-colors">
+                                            ${c.type === 'Collective' ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 12H9m4 0a4 4 0 110-5.292M9 12a4 4 0 100 5.292"></path></svg>' : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>'}
+                                        </div>
+                                        ${c.active 
+                                            ? '<div class="flex items-center gap-2 text-[10px] font-mono text-emerald-500"><div class="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></div> ACTIVE</div>'
+                                            : '<div class="text-[10px] font-mono text-red-500 border border-red-900/30 px-2 py-1 rounded">FAILED</div>'
+                                        }
+                                    </div>
+                                    <h3 class="text-lg text-white font-medium mb-1">${c.name}</h3>
+                                    <p class="text-xs text-zinc-500">${c.participants} Participants</p>
+                                </div>
+                                <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center text-xs font-mono text-zinc-400">
+                                    <span>Severity: ${c.severity}</span>
+                                    <span>${c.stake}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="nebula-card p-12 text-center relative overflow-hidden border-t-2 border-t-red-900/50">
+                        <div class="relative z-10 max-w-2xl mx-auto">
+                            <h3 class="text-2xl font-light text-white mb-2">The Consequence Oracle</h3>
+                            <p class="text-zinc-500 text-sm mb-12">Randomized punishment generation using Sepolia block entropy.</p>
+                            <div class="h-32 flex items-center justify-center mb-8">
+                                <div class="text-2xl md:text-4xl font-bold text-white" id="oracleOutput">Awaiting Input</div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4">
+                                <button onclick="spinOracle('Financial')" class="py-3 border border-zinc-800 bg-[#0a0510] text-zinc-500 hover:text-red-500 hover:border-red-900 text-xs uppercase tracking-widest transition-all">Financial</button>
+                                <button onclick="spinOracle('Effort')" class="py-3 border border-zinc-800 bg-[#0a0510] text-zinc-500 hover:text-red-500 hover:border-red-900 text-xs uppercase tracking-widest transition-all">Effort</button>
+                                <button onclick="spinOracle('Social')" class="py-3 border border-zinc-800 bg-[#0a0510] text-zinc-500 hover:text-red-500 hover:border-red-900 text-xs uppercase tracking-widest transition-all">Social</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderIdentity() {
+            return `
+                <div class="max-w-6xl mx-auto animate-in fade-in duration-700">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-white/5 pb-6">
+                        <div>
+                            <h1 class="text-3xl md:text-5xl font-light text-white mb-2 tracking-tight">Identity Matrix</h1>
+                            <p class="text-zinc-400 font-mono text-xs uppercase tracking-widest">Soulbound Reputation</p>
+                        </div>
+                        <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-[#0a0510] rounded-full border border-white/10 shadow-lg">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                            <span class="text-[10px] font-mono text-zinc-300 uppercase">Verified</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                        <div class="md:col-span-1 nebula-card p-8 flex flex-col items-center text-center">
+                            <div class="w-32 h-32 rounded-full border-2 border-purple-500/30 bg-[#0a0510] flex items-center justify-center mb-6 shadow-lg shadow-purple-900/20">
+                                <svg class="w-16 h-16 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m5.506 0A9.003 9.003 0 0112 3c-4.478 0-8.268 2.943-9.543 7a9.001 9.001 0 001.886 5.845m15.215-9.002a8.96 8.96 0 01-5.343-7.957"></path></svg>
+                            </div>
+                            <h2 class="text-2xl font-bold text-white mb-2">0x71...8A92</h2>
+                            <div class="inline-block px-3 py-1 bg-[#0a0510] border border-zinc-800 rounded text-xs font-mono text-zinc-400 mb-8">JOINED: BLOCK 12,903,881</div>
+                            <div class="w-full space-y-4">
+                                <div class="flex justify-between p-3 bg-white/5 rounded"><span class="text-[10px] text-zinc-500 font-mono uppercase">Trust Score</span><span class="text-white font-bold">1,492</span></div>
+                                <div class="flex justify-between p-3 bg-white/5 rounded"><span class="text-[10px] text-zinc-500 font-mono uppercase">Failures</span><span class="text-white font-bold">0</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="md:col-span-2 space-y-6">
+                            <div class="flex items-center justify-between"><h3 class="text-sm font-mono text-zinc-500 uppercase tracking-widest">Soulbound Seals</h3><button class="text-xs text-purple-400 hover:text-purple-300">View All</button></div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-64 overflow-hidden transition-all duration-500">
+                                ${SEALS.map((seal, i) => `
+                                    <div class="nebula-card p-6 flex flex-col justify-between group hover:border-amber-500/30">
+                                        <div>
+                                            <div class="w-10 h-10 bg-[#0a0510] border border-zinc-800 rounded flex items-center justify-center mb-4 group-hover:text-amber-500 transition-colors">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            </div>
+                                            <h4 class="text-lg font-bold text-white mb-1">${seal.name}</h4>
+                                            <p class="text-xs text-zinc-500 leading-relaxed mb-4">${seal.description}</p>
+                                        </div>
+                                        <div class="flex justify-between items-center pt-4 border-t border-white/5 text-[10px] font-mono text-zinc-400"><span>${seal.date}</span><span class="text-amber-500">SEV-${seal.severity}</span></div>
+                                    </div>
+                                `).join('')}
+                                <div class="nebula-card p-6 flex flex-col justify-center items-center text-center border-dashed border-zinc-800">
+                                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mb-2"><svg class="w-4 h-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div>
+                                    <p class="text-xs text-zinc-500">Next Seal Locked</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nebula-card p-8 border-t-2 border-t-purple-900/50">
+                        <div class="flex items-start gap-6">
+                            <div class="p-4 bg-purple-900/10 rounded-lg text-purple-400 hidden md:block">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-light text-white mb-2">The Vault (Time Capsules)</h3>
+                                <p class="text-zinc-400 text-sm max-w-2xl mb-6">Messages written to your future self during high-severity rituals. Encrypted on-chain. Decrypted only upon successful completion or failure events.</p>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between p-4 bg-[#0a0510] border border-zinc-800 rounded hover:border-zinc-700 transition-colors">
+                                        <div class="flex items-center gap-4"><svg class="w-4 h-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><span class="text-sm text-zinc-300">Capsule #001 • No-Spend November</span></div>
+                                        <span class="text-[10px] font-mono text-purple-500 bg-purple-900/20 px-2 py-1 rounded">LOCKED UNTIL DEC 1</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-[#0a0510] border border-zinc-800 rounded hover:border-zinc-700 transition-colors">
+                                        <div class="flex items-center gap-4"><svg class="w-4 h-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><span class="text-sm text-zinc-300">Capsule #002 • Crypto Fasting</span></div>
+                                        <span class="text-[10px] font-mono text-purple-500 bg-purple-900/20 px-2 py-1 rounded">LOCKED UNTIL JAN 15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTrustScoreModal() {
+            return `
+                <div class="modal-overlay" onclick="if(event.target.id === 'trustModalBg') toggleModal('trustModal')">
+                    <div class="nebula-card p-8 max-w-lg w-full m-4" id="trustModalBg" onclick="event.stopPropagation()">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="text-2xl text-white font-light">Live Trust Matrix</h3>
+                            <button onclick="toggleModal('trustModal')" class="text-zinc-500 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        </div>
+                        <div class="flex flex-col items-center justify-center mb-8">
+                            <div class="relative w-48 h-48 flex items-center justify-center">
+                                <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 192 192">
+                                    <circle cx="96" cy="96" r="88" fill="none" stroke="#2a2435" stroke-width="8" />
+                                    <circle cx="96" cy="96" r="88" fill="none" stroke="#06b6d4" stroke-width="8" style="stroke-dasharray: 552; stroke-dashoffset: ${552 - (552 * state.stats.score / 100)}" />
+                                </svg>
+                                <div class="text-center">
+                                    <div class="text-5xl font-bold text-white">${state.stats.score.toFixed(1)}</div>
+                                    <div class="text-xs text-cyan-500 font-mono uppercase mt-1">Excellent</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm p-3 bg-white/5 rounded"><span class="text-zinc-400">Streak Bonus</span><span class="text-emerald-400 font-mono">+12.5</span></div>
+                            <div class="flex justify-between text-sm p-3 bg-white/5 rounded"><span class="text-zinc-400">Severity Multiplier</span><span class="text-purple-400 font-mono">x1.5</span></div>
+                            <div class="flex justify-between text-sm p-3 bg-white/5 rounded"><span class="text-zinc-400">Recent Violations</span><span class="text-zinc-500 font-mono">0</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWalletPreview() {
+            return `
+                <div class="modal-overlay" onclick="if(event.target.id === 'walletBg') toggleModal('walletPreview')">
+                    <div class="w-[360px] bg-white rounded-xl shadow-2xl overflow-hidden font-sans text-black animate-in zoom-in-95 duration-300 relative m-4" id="walletBg" onclick="event.stopPropagation()">
+                        <div class="bg-[#f2f4f6] p-4 flex justify-between items-center border-b border-[#dcdce0]">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24"><path d="M21.83 10.33L19.7 2.11C19.64 1.88 19.33 1.86 19.24 2.08L17.55 6.07L13.16 6.07L13.89 1.63C13.92 1.4 13.67 1.27 13.51 1.41L7.56 6.77L2.17 10.33C1.98 10.46 2.01 10.76 2.22 10.84L7.56 12.87L11.59 21.72C11.69 21.94 12.01 21.94 12.11 21.72L16.44 12.87L21.78 10.84C21.99 10.76 22.02 10.46 21.83 10.33Z" fill="#E2761B"/></svg>
+                                <span class="text-xs font-bold text-[#5e636e]">MetaMask Notification</span>
+                            </div>
+                            <div class="flex gap-2 items-center">
+                                <div class="w-2 h-2 rounded-full bg-[#037dd6]"></div>
+                                <span class="text-[10px] text-[#7f8592] font-medium">Sepolia</span>
+                            </div>
+                        </div>
+                        <div class="p-6 text-center">
+                            <div class="mb-4 relative inline-block">
+                                <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#ec4899] border-4 border-white shadow-md"></div>
+                                <div class="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white"></div>
+                            </div>
+                            <h3 class="text-lg font-bold text-[#24272a] mb-1">Account 1 (Meta Demo)</h3>
+                            <p class="text-xs text-[#535a61] mb-6">0x71...8A92</p>
+                            
+                            <div class="bg-[#fff] border border-[#d6d9dc] rounded-lg p-3 mb-6 text-left shadow-sm">
+                                <p class="text-xs text-[#5c4d06] font-bold mb-1">Account 1 (Meta Demo)</p>
+                                <p class="text-xs text-[#535a61] font-mono mb-2">0x71...8A92</p>
+                                <div class="border-t border-[#d6d9dc] pt-2 mt-2">
+                                    <p class="text-xs text-[#24272a]">Balance: <strong>0.05 ETH</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button onclick="toggleModal('walletPreview')" class="flex-1 py-3 border border-[#d6d9dc] rounded-full text-[#24272a] font-bold text-sm hover:bg-[#f2f4f6] transition-colors cursor-pointer">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGroupDetailModal() {
+            const c = state.modals.selectedChallenge;
+            return `
+                <div class="modal-overlay" onclick="if(event.target.id === 'groupBg') toggleModal('selectedChallenge', null)">
+                    <div class="nebula-card p-8 max-w-2xl w-full m-4" id="groupBg" onclick="event.stopPropagation()">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-2xl text-white font-light">${c.name}</h3>
+                                    ${c.active 
+                                        ? '<span class="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded border border-emerald-500/20">ACTIVE</span>'
+                                        : '<span class="text-[10px] bg-red-500/10 text-red-500 px-2 py-1 rounded border border-red-500/20">FAILED</span>'
+                                    }
+                                </div>
+                                <p class="text-zinc-500 text-xs font-mono uppercase tracking-widest">ID: ${c.id} • STAKE: ${c.stake}</p>
+                            </div>
+                            <button onclick="toggleModal('selectedChallenge', null)" class="text-zinc-500 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="p-4 bg-zinc-900/50 border border-zinc-800 rounded"><p class="text-zinc-500 text-xs uppercase mb-1">Severity</p><p class="text-2xl text-white font-mono">${c.severity}</p></div>
+                            <div class="p-4 bg-zinc-900/50 border border-zinc-800 rounded"><p class="text-zinc-500 text-xs uppercase mb-1">Pool Status</p><p class="text-2xl text-white font-mono">Secure</p></div>
+                        </div>
+                        <h4 class="text-sm font-mono text-zinc-400 uppercase mb-4">Member Performance</h4>
+                        <div class="space-y-2 max-h-64 overflow-y-auto pr-2">
+                            ${GROUP_MEMBERS.map((member, i) => `
+                                <div class="flex justify-between items-center p-3 border border-white/5 hover:bg-white/5 transition-colors rounded">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2 h-2 rounded-full ${member.status === 'Active' ? 'bg-emerald-500' : 'bg-amber-500'}"></div>
+                                        <span class="text-sm text-zinc-300 font-mono">${member.id}</span>
+                                    </div>
+                                    <div class="text-xs text-zinc-500">${member.streak} Day Streak</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCreateGroupModal() {
+            return `
+                <div class="modal-overlay" onclick="if(event.target.id === 'createBg') toggleModal('createChallenge')">
+                    <div class="nebula-card p-8 max-w-lg w-full m-4" id="createBg" onclick="event.stopPropagation()">
+                        <h3 class="text-2xl text-white font-light mb-6">Forge New Alliance</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="text-xs text-zinc-500 uppercase font-bold block mb-2">Challenge Name</label>
+                                <input type="text" class="w-full bg-black border border-zinc-800 p-3 text-white focus:border-purple-500 outline-none" placeholder="e.g. Dry January" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-zinc-500 uppercase font-bold block mb-2">Stake Type</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button class="p-3 border border-zinc-800 text-xs text-zinc-400 hover:text-white hover:border-purple-500 focus:bg-purple-500/10 transition-all">Reputation</button>
+                                    <button class="p-3 border border-zinc-800 text-xs text-zinc-400 hover:text-white hover:border-purple-500 focus:bg-purple-500/10 transition-all">Soulbound</button>
+                                    <button class="p-3 border border-zinc-800 text-xs text-zinc-400 hover:text-white hover:border-purple-500 focus:bg-purple-500/10 transition-all">Financial</button>
+                                </div>
+                            </div>
+                            <button onclick="handleCreateChallenge()" class="w-full btn-nebula py-4 text-sm font-bold tracking-widest mt-4">Deploy Contract</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Event Handlers
+        function setActiveTab(tab) {
+            state.activeTab = tab;
+            render();
+        }
+
+        function toggleModal(modal, value = null) {
+            if (modal === 'selectedChallenge') {
+                state.modals.selectedChallenge = value;
+            } else {
+                state.modals[modal] = !state.modals[modal];
+            }
+            render();
+        }
+
+        function selectChallenge(challenge) {
+            state.modals.selectedChallenge = challenge;
+            render();
+        }
+
+        function startSignup() {
+            state.view = 'app';
+            state.landing.step = 'boot';
+            render();
+        }
+
+        function returnToLanding() {
+            state.view = 'landing';
+            state.activeTab = 'dashboard';
+            render();
+        }
+
+        function updateLimit(value) {
+            const severity = Math.floor(value / 50) + 20;
+            document.getElementById('limitDisplay').textContent = '$' + value;
+            document.getElementById('severityScore').textContent = severity;
+            document.getElementById('severityScore').parentElement.querySelector('.font-medium').textContent = severity > 50 ? 'High Impact' : 'Standard';
+        }
+
+        function spinOracle(type) {
+            const options = PUNISHMENTS[type];
+            let i = 0;
+            const output = document.getElementById('oracleOutput');
+            
+            const interval = setInterval(() => {
+                output.textContent = options[i % options.length];
+                i++;
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                output.textContent = options[Math.floor(Math.random() * options.length)];
+            }, 1500);
+        }
+
+        function handleCreateChallenge() {
+            const newLog = { 
+                text: `New Group Challenge Created`, 
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), 
+                type: "success" 
+            };
+            state.logs = [newLog, ...state.logs];
+            state.modals.createChallenge = false;
+            render();
+        }
+
+        function attachEventListeners() {
+            // Dynamically attach listeners if needed
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
